@@ -5,7 +5,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tbk-utils"
+name = "tbkpy"
 version = "0.1.0"
 description = "Turing-zero Bot Kits tools & admin app"
 authors = [
@@ -17,7 +17,7 @@ dependencies = [
 keywords = ["robotics","ros","robocup","turing-zero","tbk"]
 
 [project.urls]
-Homepage = "https://github.com/Turing-zero/tbk-utils"
+Homepage = "https://github.com/Turing-zero/tbkpy"
 Documentation = "https://turing-zero-bot-kits.readthedocs.io/"
-Repository = "https://github.com/Turing-zero/tbk-utils.git"
-Issues = "https://github.com/Turing-zero/tbk-utils/issues"
+Repository = "https://github.com/Turing-zero/tbkpy.git"
+Issues = "https://github.com/Turing-zero/tbkpy/issues"
