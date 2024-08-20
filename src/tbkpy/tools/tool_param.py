@@ -176,7 +176,7 @@ if __name__ == "__main__":
         for suffix in ["__v__","__t__","__i__"]:
             param = args.param + "/" + suffix
             res,v = api_del(param)
-        print("OK")
+        print("Successful!")
         list_command()
         exit(res)
     elif args.command == 'save':
