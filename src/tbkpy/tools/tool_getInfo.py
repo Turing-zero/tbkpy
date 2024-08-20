@@ -1,7 +1,7 @@
 import os
 import etcd3
 from graphviz import Digraph
-import tbk_pb2 as tbkpb
+import tzcp.tbk.tbk_pb2 as tbkpb
 
 def __client():
     pkipath = os.path.join(os.path.expanduser("~"),'.tbk/etcdadm/pki')

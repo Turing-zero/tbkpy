@@ -1,12 +1,15 @@
 [build-system]
 requires = [
-    "setuptools>=61",
+    "setuptools>=64",
+    "setuptools_scm>=8"
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools_scm]
+
 [project]
 name = "tbkpy"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Turing-zero Bot Kits tools & admin app"
 authors = [
     {name = "MarkHtz", email = "feiwumark@gmail.com"},
