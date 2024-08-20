@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import argparse
-
+from prettytable import PrettyTable
 parser = argparse.ArgumentParser(
                     prog=f'{os.path.basename(__file__)}',
                     description='cmdline tool to test tbk toolbox - Params',
@@ -10,24 +10,20 @@ parser = argparse.ArgumentParser(
 # example of use:
 # - list all parameters
 #   tool_param.py list
-# - get params in a particular group
-#   tool_param.py list group_name
-# - get a particular param
-#   tool_param.py get group_name param_name
-# - set a particular param
-#   tool_param.py set group_name param_name value
-# - save all params to a file
-#   tool_param.py save file_name
-# - load all params from a file
-#   tool_param.py load file_name
 
-# how to use
-# python tool_param.py list
-# python tool_param.py list [group_name]
-# python tool_param.py get [group_name] [param_name]
-# python tool_param.py set [group_name] [param_name] [value]
-# python tool_param.py save [file_name]
-# python tool_param.py load [file_name]
+# - get a particular param
+#   tool_param.py get param_name.suffix  suffix: [value or v],[type or t],[info or i] or  tool_param.py get param_name default: value
+
+# - set a parameter that already exists
+#   tool_param.py set param_name.suffix value  suffix: [value or v],[type or t],[info or i] or  tool_param.py set param_name value default: value
+
+# - delete a parameter
+#   tool_param.py del param_name
+#   This will delete all attributes (value, type, and info) associated with the parameter.
+
+# - put (create or update) a parameter
+#   tool_param.py put param_name value type info
+#   If the type or info are not provided, their default values will be set to "None".
 
 
 commands = parser.add_subparsers(dest='command', help='action')
@@ -40,17 +36,22 @@ load = commands.add_parser('load', help='load all parameters from a file')
 load.add_argument('file', help='file name')
 get = commands.add_parser('get', help='get a parameter')
 get.add_argument('param', help='parameter name')
+
 set = commands.add_parser('set', help='set a parameter that already exists')
 set.add_argument('param', help='parameter name')
 set.add_argument('value', help='parameter value')
+
+
 put = commands.add_parser('put', help='put a parameter that may or may not exist')
 put.add_argument('param', help='parameter name')
 put.add_argument('value', help='parameter value')
+put.add_argument('type', help='parameter type',default = "None",nargs='?')
+put.add_argument('info', help='parameter info',default = "None",nargs='?')
+
 del_ = commands.add_parser('del', help='delete a parameter')
 del_.add_argument('param', help='parameter name')
 
 args = parser.parse_args()
-
 
 import etcd3
 
@@ -94,27 +95,89 @@ def api_save(file):
 def api_load(file):
     pass
 
+
+def list_command() :
+    res = api_list()
+    table = PrettyTable()
+    table.field_names = ["Param", "Info", "Type", "Value"]
+    result = {}
+    for key, value in res.items():
+        param = key[12:]
+        base_param = param.rsplit('/', 1)[0]
+        suffix = param.rsplit('/', 1)[1]
+        if base_param not in result:
+            result[base_param] = {'info': None, 'type': None, 'value': None}
+        if suffix == '__i__':
+            result[base_param]['info'] = value
+        elif suffix == '__t__':
+            result[base_param]['type'] = value
+        elif suffix == '__v__':
+            result[base_param]['value'] = value
+    result_list = [[key, values['info'], values['type'], values['value']] for key, values in result.items()]
+    table.add_rows(result_list)
+    print(table)
+
+
+def param_tranfrom(input_param):
+    value = ["value","v","__v__"]
+    type = ["type","t","__t__"]
+    info = ["info","i","__i__"]
+    property_table = {
+        "value":value,
+        "type":type,
+        "info":info
+        }
+    property = input_param.split("/")[-1].split(".")
+    param = input_param + "/" + value[2]
+    if (len(property)>1):
+        _property = property[1].lower()
+        for key in property_table:
+            if _property in property_table[key]:
+                param = input_param[:-1*len(_property)-1] + "/" + property_table[key][2]
+                break
+    return param
 if __name__ == "__main__":
     if args.command == 'list':
-        res = api_list(args.prefix)
-        for k,v in res.items():
-            print(k,v)
+        list_command()
         exit(0)
+
     elif args.command == 'get':
-        res,v = api_get(args.param)
+        param = param_tranfrom(args.param)
+        res,v = api_get(param)
         print(v)
-        exit(res)
+        
     elif args.command == 'put':
-        res,v = api_put(args.param,args.value)
-        print(v)
+        _value = "__v__"
+        _type = "__t__"
+        _info = "__i__"
+        propertys = {
+            "__v__":[args.value,"value"],
+            "__t__":[args.type,"type"],
+            "__i__":[args.info,"info"]
+            }
+        for property in propertys:
+            param = args.param + "/" + property
+            property_value = propertys[property][0]
+            property_name = propertys[property][1]
+            if property_value == "_":
+                continue
+            res,v = api_put(param,property_value)
+            if v =="OK":
+                print(f"Successful! {args.param}.{property_name} : {property_value}")
+            else:
+                print(v)
         exit(res)
     elif args.command == 'set':
-        res,v = api_set(args.param,args.value)
+        param = param_tranfrom(args.param)
+        res,v = api_set(param,args.value)
         print(v)
         exit(res)
     elif args.command == 'del':
-        res,v = api_del(args.param)
-        print(v)
+        for suffix in ["__v__","__t__","__i__"]:
+            param = args.param + "/" + suffix
+            res,v = api_del(param)
+        print("OK")
+        list_command()
         exit(res)
     elif args.command == 'save':
         pass
