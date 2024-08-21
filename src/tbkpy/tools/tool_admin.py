@@ -17,7 +17,7 @@ def api_init(args):
     os.symlink(service_file,os.path.join(target_path,"tbkadmin.service"))
 
 def api_start(args):
-    api_init()
+    api_init(args)
     subprocess.run(["systemctl","--user","start","tbkadmin.service"])
 
 def api_stop(args):
