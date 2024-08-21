@@ -94,7 +94,7 @@ def api_save(file):
 def api_load(file):
     pass
 
-if __name__ == "__main__":
+def main():
     if args.command == 'list':
         res = api_list(args.prefix)
         for k,v in res.items():
@@ -120,8 +120,11 @@ if __name__ == "__main__":
         pass
     elif args.command == 'load':
         pass
-    elif args.command == 'help':
+    elif args.command == 'help' or args.command is None:
         parser.print_help()
     else:
         print("Not implemented yet.")
         exit(1)
+
+if __name__ == "__main__":
+    main()

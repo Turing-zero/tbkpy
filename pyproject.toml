@@ -24,3 +24,9 @@ Homepage = "https://github.com/Turing-zero/tbkpy"
 Documentation = "https://turing-zero-bot-kits.readthedocs.io/"
 Repository = "https://github.com/Turing-zero/tbkpy.git"
 Issues = "https://github.com/Turing-zero/tbkpy/issues"
+
+[project.scripts]
+tbkparam = "tbkpy.tools.tool_param:main"
+tbknode = "tbkpy.tools.tool_node:main"
+tbketcd = "tbkpy.tools.tool_etcd:main"
+tbkadmin = "tbkpy.tools.tool_admin:main"

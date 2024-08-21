@@ -65,7 +65,8 @@ def api_ipinfo():
     output = cmd.stdout.decode("utf-8")
     return cmd.returncode, output
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser(description='Tool to manage etcd')
     commands = parser.add_subparsers(dest='command', help='action')
     help = commands.add_parser('help', help='show help')
@@ -94,9 +95,13 @@ if __name__ == "__main__":
         res, output = api_ipinfo()
         print(output)
         exit(res)
-    elif args.command == 'help':
+    elif args.command == 'help' or args.command is None:
         parser.print_help()
         exit(0)
     else:
         print(f"Command \"{args.command}\" not found.")
         exit(1)
+
+
+if __name__ == "__main__":
+    main()

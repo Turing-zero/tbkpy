@@ -8,7 +8,7 @@ def api_run_action(action):
     output = cmd.stdout.decode("utf-8")
     return cmd.returncode, output
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description='Interface for etcdadm')
     commands = parser.add_subparsers(dest='command', help='action')
     init = commands.add_parser('init', help='initialize etcd')
@@ -19,9 +19,12 @@ if __name__ == "__main__":
         res, output = api_run_action(args.command)
         print(output)
         exit(res)
-    elif args.command == "help":
+    elif args.command == "help" or args.command is None:
         parser.print_help()
         exit(0)
     else:
         print("Unknown command")
         exit(1)
+
+if __name__ == "__main__":
+    main()

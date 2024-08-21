@@ -52,7 +52,7 @@ def api_list(args):
         "subs" : subscribers
     }
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
                         prog=f'{os.path.basename(__file__)}',
                         description='console tool for tbk node',
@@ -68,7 +68,10 @@ if __name__ == "__main__":
     if args.command in api_table:
         res,info = api_table[args.command](args)
         print(info) if res else print("res : ",res)
-    elif args.command == 'help':
+    elif args.command == 'help' or args.command is None:
         parser.print_help()
     else:
         print("Error: unknown command.")
+
+if __name__ == "__main__":
+    main()
