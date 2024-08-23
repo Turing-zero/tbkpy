@@ -132,10 +132,22 @@ class Indicator():
             label = "blue" if len(status.clusters) > 1 else "green"
         return len(status.clusters), label
 
+def checkScreen():
+    gi.require_version("Gdk", "3.0")
+    from gi.repository import Gdk
+    s = Gdk.Screen.get_default()
+    return s is not None
+
 def main():
-    indicator = Indicator()
-    notify.init(APPINDICATOR_ID)
-    gtk.main()
+    if checkScreen():
+        indicator = Indicator()
+        notify.init(APPINDICATOR_ID)
+        gtk.main()
+        return
+    print("No Screen Found")
+    statusNode = StatusNode()
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
