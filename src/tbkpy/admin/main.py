@@ -3,10 +3,14 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 import gi
 gi.require_version('Gtk', '3.0')
-gi.require_version('AppIndicator3', '0.1')
 gi.require_version('Notify', '0.7')
 from gi.repository import Gtk as gtk
-from gi.repository import AppIndicator3 as appindicator
+try:
+    gi.require_version('AppIndicator3', '0.1')
+    from gi.repository import AppIndicator3 as appindicator
+except:
+    gi.require_version('AyatanaAppIndicator3', '0.1')
+    from gi.repository import AyatanaAppIndicator3 as appindicator
 from gi.repository import GLib as glib
 from gi.repository import Notify as notify
 
@@ -46,6 +50,23 @@ class Indicator():
     def _create_menu(self):
         menu = gtk.Menu()
 
+        nodes_menu = gtk.Menu()
+
+        # a = gtk.MenuItem(label='Node A')
+        # nodes_menu.append(a)
+        # b = gtk.MenuItem(label='Node B')
+        # nodes_menu.append(b)
+
+        # radioTest = gtk.RadioMenuItem(label='Radio Test')
+        # menu.append(radioTest)
+
+        # checkTest = gtk.CheckMenuItem(label='Check Test')
+        # menu.append(checkTest)
+
+        item_current_nodes = gtk.MenuItem(label='Current Nodes')
+        item_current_nodes.set_submenu(nodes_menu)
+        menu.append(item_current_nodes)
+
         item_local_reset = gtk.MenuItem(label='Local Reset Cluster')
         item_local_reset.connect('activate', self._localReset)
         menu.append(item_local_reset)
@@ -75,6 +96,8 @@ class Indicator():
     def _localInit(self, source):
         self.statusNode.tbklocal.adminInit()
 
+    def resetNodeList(self, nodes):
+        pass
     def resetLabel(self,label,status=None):
         glib.idle_add(
             self.indicator.set_label,
@@ -99,6 +122,7 @@ class Indicator():
     def _updateThread(self):
         while True:
             time.sleep(TBK_STATUE_INTERVAL)
+            # print(self.statusNode.localStatus)
             title, label = self.getLabels(self.statusNode.localStatus)
             self.resetLabel(f"TBK-({title})",label)
 
@@ -107,6 +131,7 @@ class Indicator():
         if status.health == "true":
             label = "blue" if len(status.clusters) > 1 else "green"
         return len(status.clusters), label
+
 def main():
     indicator = Indicator()
     notify.init(APPINDICATOR_ID)
