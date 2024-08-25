@@ -4,7 +4,7 @@ sys.path.append("..")
 import json
 import psutil, socket
 from tbkpy.socket import UDPMultiCastReceiver, UDPMultiCastSender
-from tbkpy.config import MULTICAST_GROUP, PORT_TBK_STATUS, TBK_STATUE_INTERVAL
+from tbkpy.config import MULTICAST_GROUP, PORT_TBK_STATUS, TBK_STATUE_INTERVAL, TBK_STATUS_ALIVE_TIMEOUT
 import tbkpy.tools.tool_etcd as tbketcd
 import tbkpy.tools.tool_etcdadm as tbketcdadm
 
@@ -76,6 +76,7 @@ class StatusNode:
         self.tbklocal = TBKLocal()
         self.receiver = UDPMultiCastReceiver(MULTICAST_GROUP, PORT_TBK_STATUS)
         self.sender = UDPMultiCastSender()
+        self.all_info_mutex = threading.Lock()
         self.all_info = {}
         self._threads = (
             threading.Thread(target=self.__send),
@@ -94,16 +95,23 @@ class StatusNode:
                 self.sender.setInterface(ip)
                 self.sender.send(json.dumps(self._status.__dict__).encode(), (MULTICAST_GROUP, PORT_TBK_STATUS))
             time.sleep(TBK_STATUE_INTERVAL)
+            self.all_info_mutex.acquire()
+            for endpoint in list(self.all_info.keys()):
+                if time.time() - self.all_info[endpoint][1] > TBK_STATUS_ALIVE_TIMEOUT:
+                    del self.all_info[endpoint]
+            self.all_info_mutex.release()
     def __recv(self):
         while True:
             res, recv = self.receiver.recv()
-            print("recv : ",res, recv)
-            if res == 0:
+            # print("recv : ",res, recv)
+            if res:
                 msg, endpoint = recv
                 msg = json.loads(msg.decode())
-                if "ip" not in msg or msg["ip"] == self._status.ip: # skip the local status
+                if "ip" in msg and msg["ip"] == self._status.ip: # skip the local status
                     continue
-                self.all_info[endpoint[0]] = msg
+                self.all_info_mutex.acquire()
+                self.all_info[endpoint[0]] = (msg, time.time())
+                self.all_info_mutex.release()
             time.sleep(0.01)
     @property
     def info(self):
@@ -115,5 +123,5 @@ class StatusNode:
 if __name__ == "__main__":
     sn = StatusNode()
     while True:
-        # print("Got Info : ",sn.info, sn.localStatus)
+        print("Got Info : ",sn.info)
         time.sleep(1)
