@@ -31,6 +31,9 @@ class UDPMultiCastSender:
     def send(self, msg, ep):
         self.sock.sendto(msg, ep)
 
+    def setInterface(self, ip):
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(ip))
+
 if __name__ == "__main__":
     if len(sys.argv)>1 and sys.argv[1] == "send":
         s = UDPMultiCastSender()

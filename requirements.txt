@@ -1,2 +1,3 @@
 etcd3
+psutil
 tzcp git+https://github.com/Turing-zero/tzcp.git
