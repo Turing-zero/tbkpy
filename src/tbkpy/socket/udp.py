@@ -41,23 +41,26 @@ class UDPReceiver:
         self.sock.setblocking(blocking)
 
 class UDPMultiCastReceiver(UDPReceiver):
-    def __init__(self, group, port):
-        super().__init__(port, multicast=True, multicast_group=group)
+    def __init__(self, group, port, *, bind_ip='', callback=None, plugin=None):
+        super().__init__(port, multicast=True, multicast_group=group, bind_ip=bind_ip, callback=callback, plugin=plugin)
 
 class UDPSender:
-    def __init__(self, *, multicast=False, ttl=2, multicast_interface=None):
+    def __init__(self, *, multicast=False, ttl=2, multicast_interface=None, plugin=None):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         if multicast:
             self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
             if multicast_interface:
                 self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(multicast_interface))
+        self.plugin = plugin
     
     def send(self, msg, ep):
+        if self.plugin:
+            msg = self.plugin.encode(msg)
         self.sock.sendto(msg, ep)
 
 class UDPMultiCastSender(UDPSender):
-    def __init__(self, *, ttl=2, multicast_interface=None):
-        super().__init__(multicast=True, ttl=ttl, multicast_interface=multicast_interface)
+    def __init__(self, *, ttl=2, multicast_interface=None, plugin=None):
+        super().__init__(multicast=True, ttl=ttl, multicast_interface=multicast_interface, plugin=plugin)
     def setInterface(self, ip):
         self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF, socket.inet_aton(ip))
 
