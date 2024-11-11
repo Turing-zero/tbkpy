@@ -52,10 +52,10 @@ if __name__ == "__main__":
             c.node_attr['style'] = 'filled'
             for pub,info in publishers.items():
                 if info.puuid == uuid:
-                    with c.subgraph(name="cluster_ns_"+info.ns) as cc:
-                        cc.attr(label=info.ns,color='white',style='filled')
+                    with c.subgraph(name="cluster_ns_"+info.ep_info.ns) as cc:
+                        cc.attr(label=info.ep_info.ns,color='white',style='filled')
                         cc.node_attr['style'] = 'filled'
-                        cc.node(pub, label="PUB({}:{})\n\n{}".format(info.name,info.msg_name,str(info)))
+                        cc.node(pub, label="PUB({}:{})\n\n{}".format(info.ep_info.name,info.ep_info.msg_name,str(info)))
             for sub,info in subscribers.items():
                 if info.puuid == uuid:
                     with c.subgraph(name="cluster_ns_"+info.ns) as cc:
