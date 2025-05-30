@@ -12,7 +12,7 @@ name = "tbkpy"
 dynamic = ["version"]
 description = "Turing-zero Bot Kits tools & admin app"
 authors = [
-    {name = "MarkHtz", email = "feiwumark@gmail.com"},
+    {name = "Mark", email = "feiwumark@gmail.com"},
     {name = "Turing-zero Robotics", email = "turingzero.robot@gmail.com"},
 ]
 dependencies = [

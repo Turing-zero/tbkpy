@@ -194,7 +194,7 @@ class MainWindow(gtk.Window):
 
 class Indicator():
     def __init__(self):
-        self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, self._getIcon(), appindicator.IndicatorCategory.SYSTEM_SERVICES)
+        self.indicator = appindicator.Indicator.new(APPINDICATOR_ID, self._getIcon(), appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self._create_menu())
         self.indicator.set_label("TBK", APPINDICATOR_ID)
